@@ -1,11 +1,11 @@
-prepare-test-wd:
-	mkdir -p build
-	cp textures.txt build/textures.txt
+prepare-cmd-test-wd:
+	mkdir -p cmd/build
+	cp textures.txt cmd/build/textures.txt
 
 install:
-	$(prepare-test-wd)
-	GOOS=darwin go build -o build/lunarlauncher
+	$(prepare-cmd-test-wd)
+	cd cmd && GOOS=darwin go build -o build/launcher_cmd
 
 run:
-	$(prepare-test-wd)
-	cd build && GOOS=darwin go run ../.
+	$(prepare-cmd-test-wd)
+	cd cmd/build && GOOS=darwin go run ../

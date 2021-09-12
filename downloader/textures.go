@@ -1,4 +1,4 @@
-package main
+package lunarlauncher
 
 import (
 	"bufio"
@@ -35,9 +35,9 @@ func isAlreadyDownloaded(downloadPath string) (bool, error) {
 	return false, nil
 }
 
-func downloadTexture(rootDir string, meta textureMeta) error {
-	downloadPath := path.Join(rootDir, meta.path)
-	isSubDir, err := IsSubDir(rootDir, downloadPath)
+func downloadTexture(meta textureMeta) error {
+	downloadPath := path.Join(texturesDir, meta.path)
+	isSubDir, err := IsSubDir(texturesDir, downloadPath)
 	if err != nil {
 		return fmt.Errorf("sub dir validate: %w", err)
 	}
@@ -78,11 +78,11 @@ func downloadTexture(rootDir string, meta textureMeta) error {
 	return nil
 }
 
-func downloadTextures(rootDir string, textures []textureMeta) {
+func downloadTextures(textures []textureMeta) {
 	allTexturesCount := len(textures)
 	for processedCount, texture := range textures {
 		log.Printf("Downloading texture (%d/%d): %s\n", (processedCount + 1), allTexturesCount, texture)
-		err := downloadTexture(rootDir, texture)
+		err := downloadTexture(texture)
 		if errors.Is(err, errAlreadyDownloaded) {
 			log.Printf("Texture %v is already downloaded. Skipping...\n", texture)
 		} else if err != nil {
@@ -119,13 +119,4 @@ func readTextures() ([]textureMeta, error) {
 		textures = append(textures, meta)
 	}
 	return textures, nil
-}
-
-func main() {
-	log.Println("Welcome witam in downloader")
-	texturesMetas, err := readTextures()
-	if err != nil {
-		panic(err)
-	}
-	downloadTextures(texturesDir, texturesMetas)
 }
