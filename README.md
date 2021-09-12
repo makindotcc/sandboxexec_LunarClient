@@ -7,3 +7,6 @@ Licensee understands and agrees that the information that may be inspected and r
 
 ## how to run
 WIP
+
+## Alternatives
+- linux: [Morelcia/com.lunarclient.Launcher](https://github.com/Morelcia/com.lunarclient.Launcher)
