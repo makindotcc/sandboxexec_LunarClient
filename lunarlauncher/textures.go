@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"path"
 	"strings"
 )
 
@@ -16,9 +17,7 @@ type TextureMeta struct {
 }
 
 func DownloadTexture(texturesBaseUrl string, meta TextureMeta) error {
-	// meta.path
-	// texturesBaseUrl + meta.hash
-	return downloadFile(meta.Path, texturesBaseUrl+meta.Hash)
+	return downloadFile(path.Join(texturesDir, meta.Path), texturesBaseUrl+meta.Hash)
 }
 
 func parseRawTextureMeta(rawMeta string) (TextureMeta, error) {

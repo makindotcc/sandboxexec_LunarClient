@@ -13,12 +13,7 @@ const launchMetaUrl = "https://api.lunarclientprod.com/launcher/launch"
 type LaunchMeta struct {
 	Success        bool `json:"success"`
 	LaunchTypeData struct {
-		Artifacts []struct {
-			Name string `json:"name"`
-			Sha1 string `json:"sha1"`
-			URL  string `json:"url"`
-			Type string `json:"type"`
-		} `json:"artifacts"`
+		Artifacts []Artifact `json:"artifacts"`
 		MainClass string `json:"mainClass"`
 	} `json:"launchTypeData"`
 	Licenses []struct {

@@ -39,8 +39,13 @@ func downloadFile(filePathRelative string, fileUrl string) error {
 		return fmt.Errorf("invalid url scheme (%s)", fileUrlParsed.Scheme)
 	}
 
-	downloadPath := path.Join(texturesDir, filePathRelative)
-	isSubDir, err := IsSubDir(texturesDir, downloadPath)
+	wd, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("get wd: %w", err)
+	}
+
+	downloadPath := path.Join(wd, filePathRelative)
+	isSubDir, err := IsSubDir(wd, downloadPath)
 	if err != nil {
 		return fmt.Errorf("sub dir validate: %w", err)
 	}

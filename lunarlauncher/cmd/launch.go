@@ -8,9 +8,9 @@ import (
 )
 
 func downloadTextures(texturesBaseUrl string, textures []lunarlauncher.TextureMeta) {
-	allTexturesCount := len(textures)
 	for processedCount, texture := range textures {
-		log.Printf("Downloading texture (%d/%d): %s\n", (processedCount + 1), allTexturesCount, texture)
+		log.Printf("Downloading texture (%d/%d): %s\n", (processedCount + 1),
+			len(textures), texture)
 		err := lunarlauncher.DownloadTexture(texturesBaseUrl, texture)
 		if errors.Is(err, lunarlauncher.ErrAlreadyDownloaded) {
 			log.Printf("Texture %v is already downloaded. Skipping...\n", texture)
@@ -28,14 +28,27 @@ func downloadLaunchTextures(launchMeta lunarlauncher.LaunchMeta) {
 	downloadTextures(launchMeta.Textures.BaseURL, textures)
 }
 
+func downloadLaunchArtifacts(mcVersion lunarlauncher.McVersion,
+	artifacts []lunarlauncher.Artifact) {
+	for processedCount, artifact := range artifacts {
+		log.Printf("Downloading artifact (%d/%d): %s\n", (processedCount + 1),
+			len(artifacts), artifact)
+		lunarlauncher.DownloadArtifact(mcVersion, artifact)
+	}
+}
+
 func main() {
+	const mcVersion = lunarlauncher.Mc1_16
+
 	log.Println("Preparing lunar assets...")
 	log.Println("Fetching launch meta...")
-	launchMeta, err := lunarlauncher.FetchLaunchMeta(lunarlauncher.Mc1_16, "master")
+	launchMeta, err := lunarlauncher.FetchLaunchMeta(mcVersion, "master")
 	if err != nil {
 		panic(err)
 	}
 	log.Println("Got launch meta:", launchMeta)
-	
+
 	downloadLaunchTextures(launchMeta)
+
+	downloadLaunchArtifacts(mcVersion, launchMeta.LaunchTypeData.Artifacts)
 }
