@@ -108,7 +108,7 @@ func readTextures() ([]textureMeta, error) {
 		return nil, fmt.Errorf("open textures.txt: %w", err)
 	}
 
-	textures := make([]textureMeta, 0, 512)
+	textures := make([]textureMeta, 0, 4096)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		rawMeta := scanner.Text()
