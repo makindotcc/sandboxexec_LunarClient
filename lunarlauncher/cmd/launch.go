@@ -41,7 +41,7 @@ func downloadLaunchArtifacts(mcVersion lunarlauncher.McVersion,
 }
 
 func launchSandboxed(mcVersion lunarlauncher.McVersion) {
-	cmd := exec.Command("sandbox-exec", "-f", "../../../lunar.sb", "java", "--add-modules", "jdk.naming.dns", "--add-exports",
+	cmd := exec.Command("sandbox-exec", "-f", "../../../lunar.sb", "java", "-Dlog4j2.formatMsgNoLookups=true", "--add-modules", "jdk.naming.dns", "--add-exports",
 	"jdk.naming.dns/com.sun.jndi.dns=java.naming", "-Djna.boot.library.path=natives",
 	"--add-opens", "java.base/java.io=ALL-UNNAMED", "-XstartOnFirstThread", "-Xms1024m", "-Xmx1024m", "-Djava.library.path=natives",
 	"-XX:+DisableAttachMechanism", 
