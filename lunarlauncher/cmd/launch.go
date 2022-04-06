@@ -6,21 +6,42 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"sync"
+	"sync/atomic"
 
 	"github.com/makindotcc/lunarlauncher"
 )
 
 func downloadTextures(texturesBaseUrl string, textures []lunarlauncher.TextureMeta) {
-	for processedCount, texture := range textures {
-		log.Printf("Downloading texture (%d/%d): %s\n", (processedCount + 1),
-			len(textures), texture)
-		err := lunarlauncher.DownloadTexture(texturesBaseUrl, texture)
-		if errors.Is(err, lunarlauncher.ErrAlreadyDownloaded) {
-			log.Printf("Texture %v is already downloaded. Skipping...\n", texture)
-		} else if err != nil {
-			log.Printf("Texture %v download error: %s\n", texture, err)
+	jobs := make(chan lunarlauncher.TextureMeta, len(textures))
+
+	var wg sync.WaitGroup
+	var textureIndex int32 = 0
+	worker := func() {
+		for texture := range jobs {
+			index := atomic.AddInt32(&textureIndex, 1)
+	
+			log.Printf("Downloading texture (%d/%d): %s\n", index,
+				len(textures), texture)
+			err := lunarlauncher.DownloadTexture(texturesBaseUrl, texture)
+			if errors.Is(err, lunarlauncher.ErrAlreadyDownloaded) {
+				log.Printf("Texture %v is already downloaded. Skipping...\n", texture)
+			} else if err != nil {
+				log.Printf("Texture %v download error: %s\n", texture, err)
+			}
+			wg.Done()
 		}
 	}
+
+	wg.Add(len(textures))
+	for _, texture := range textures {
+		jobs <- texture
+	}
+
+	for i := 0; i < 100; i++ {
+		go worker()
+	}
+	wg.Wait()
 }
 
 func downloadLaunchTextures(launchMeta lunarlauncher.LaunchMeta) {
