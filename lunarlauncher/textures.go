@@ -17,7 +17,7 @@ type TextureMeta struct {
 }
 
 func DownloadTexture(texturesBaseUrl string, meta TextureMeta) error {
-	return downloadFile(path.Join(texturesDir, meta.Path), texturesBaseUrl+meta.Hash)
+	return downloadFileToWD(path.Join(texturesDir, meta.Path), texturesBaseUrl+meta.Hash)
 }
 
 func parseRawTextureMeta(rawMeta string) (TextureMeta, error) {

@@ -1,0 +1,92 @@
+;; https://reverse.put.as/wp-content/uploads/2011/09/Apple-Sandbox-Guide-v1.0.pdf
+
+(version 1)
+;; Disallow everything by default
+(deny default)
+
+(import "/System/Library/Sandbox/Profiles/bsd.sb")
+
+(allow user-preference-read)
+(allow network*)
+(allow system-socket)
+(allow process-exec*
+    (regex ".+/java$")
+)
+
+(allow file-read* file-write*
+    (regex ".+/lunarlauncher/cmd/offline/.+")
+    (regex "^/private/var/folders/[a-zA-Z][0-9]/[a-zA-Z0-9]+/T/[a-zA-Z+~]+[0-9]+\.tmp$")
+    (regex "^/Users/[a-zA-Z0-9]+/.lunarclient/.*")
+)
+
+(allow file-read*
+    (path "/private/var/run/resolv.conf")
+    (regex ".+/lunarlauncher/cmd/")
+    (regex "^/Users/[a-zA-Z0-9]+/Library/Preferences/com.apple.security.plist")
+    (regex "^/Users/[a-zA-Z0-9]+/Library/Application Support/minecraft/.*")
+    (path "/dev")
+    (path "/private/etc")
+    (regex "^/Library/*")
+    (regex "^/usr/*")
+    (regex "^/System/Library/*")
+    (path "/private/etc/hosts")
+    (path "/System/Applications/Font%20Book.app")
+)
+
+(deny file-write*
+    (regex ".+/lunarlauncher/cmd/build/lunar.sb")
+)
+
+(allow mach-lookup
+    (global-name "com.apple.lsd.modifydb")
+    (global-name "com.apple.audio.coreaudiod")
+    (global-name "com.apple.coreservices.launchservicesd")
+    (global-name "com.apple.tccd.system")
+    (global-name "com.apple.CoreServices.coreservicesd")
+    ;; https://www.synack.com/blog/who-moved-my-pixels/ will this leak our pixels???
+    ;; not sure if method from the article still works in macOS Monterey
+    ;; running /usr/bin/screencapture using this sandbox config leads to following error:
+    ;; "could not create image from display SOME_NUMBERS"
+    (global-name "com.apple.windowserver.active")
+    (global-name "com.apple.FontServer")
+    (global-name "com.apple.FontObjectsServer")
+    (global-name "com.apple.cvmsServ")
+    (global-name "com.apple.audio.coreaudiod")
+    (global-name "com.apple.dock.fullscreen")
+    (global-name "com.apple.dock.server")
+    (global-name "com.apple.CARenderServer")
+    (global-name "com.apple.window_proxies")
+    (global-name "com.apple.coreservices.appleevents")
+    (global-name "com.apple.audio.AudioComponentRegistrar")
+    (global-name "com.apple.inputmethodkit.launchagent")
+    (global-name "com.apple.inputmethodkit.launcher")
+    (global-name "com.apple.inputmethodkit.getxpcendpoint")
+    (global-name "com.apple.audio.audiohald")
+    (global-name "com.apple.pasteboard.1")
+    (global-name "com.apple.SecurityServer")
+)
+
+(allow iokit-open
+    ;; AMD Radeon 5300, dunno how to make these rules unique for all GPUs
+    (iokit-registry-entry-class "AMDRadeonX6000_AMDAccelDevice")
+    (iokit-registry-entry-class "AMDRadeonX6000_AMDAccelSharedUserClient")
+    (iokit-registry-entry-class "AMDRadeonX6000_AMDGFX10GLContext")
+    (iokit-registry-entry-class "AppleGraphicsControlClient")
+    (iokit-registry-entry-class "IGAccelCommandQueue")
+    (iokit-registry-entry-class "IGAccelDevice")
+    (iokit-registry-entry-class "IGAccelGLContext")
+    (iokit-registry-entry-class "IGAccelSharedUserClient")
+    (iokit-registry-entry-class "IGAccelVideoContextMain")
+    (iokit-registry-entry-class "IGAccelVideoContextMedia")
+    (iokit-registry-entry-class "IOAudioControlUserClient")
+    (iokit-registry-entry-class "IOAudioEngineUserClient")
+    (iokit-registry-entry-class "IOFramebufferSharedUserClient")
+    (iokit-registry-entry-class "IOHIDLibUserClient")
+    (iokit-registry-entry-class "IOHIDParamUserClient")
+    (iokit-registry-entry-class "IOSurfaceRootUserClient")
+    (iokit-registry-entry-class "IOSurfaceSendRight")
+    (iokit-registry-entry-class "RootDomainUserClient")
+    (iokit-registry-entry-class "nvDevice")
+    (iokit-registry-entry-class "nvFermiGLContext")
+    (iokit-registry-entry-class "nvSharedUserClient")
+)
