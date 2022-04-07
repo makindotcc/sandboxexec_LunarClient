@@ -57,12 +57,17 @@ func downloadLaunchArtifacts(mcVersion lunarlauncher.McVersion,
 	for processedCount, artifact := range artifacts {
 		log.Printf("Downloading artifact (%d/%d): %s\n", (processedCount + 1),
 			len(artifacts), artifact)
-		lunarlauncher.DownloadArtifact(mcVersion, artifact)
+		err := lunarlauncher.DownloadArtifact(mcVersion, artifact)
+		if errors.Is(err, lunarlauncher.ErrAlreadyDownloaded) {
+			log.Printf("Artifact %s is already downloaded. Skipping...\n", artifact.Name)
+		} else if err != nil {
+			log.Printf("Artifact %s download error: %s\n", artifact.Name, err)
+		}
 	}
 }
 
 func launchSandboxed(mcVersion lunarlauncher.McVersion) {
-	cmd := exec.Command("sandbox-exec", "-f", "../../../lunar.sb", "java", "-Dlog4j2.formatMsgNoLookups=true", "--add-modules", "jdk.naming.dns", "--add-exports",
+	cmd := exec.Command("sandbox-exec", "-f", "../../lunar.sb", "java", "-Dlog4j2.formatMsgNoLookups=true", "--add-modules", "jdk.naming.dns", "--add-exports",
 	"jdk.naming.dns/com.sun.jndi.dns=java.naming", "-Djna.boot.library.path=natives",
 	"--add-opens", "java.base/java.io=ALL-UNNAMED", "-XstartOnFirstThread", "-Xms1024m", "-Xmx1024m", "-Djava.library.path=natives",
 	"-XX:+DisableAttachMechanism", 
@@ -81,7 +86,7 @@ func launchSandboxed(mcVersion lunarlauncher.McVersion) {
 }
 
 func main() {
-	const mcVersion = lunarlauncher.Mc1_16
+	const mcVersion = lunarlauncher.Mc1_18
 
 	log.Println("sandbox:", os.Environ())
 
@@ -96,5 +101,13 @@ func main() {
 	downloadLaunchTextures(launchMeta)
 	downloadLaunchArtifacts(mcVersion, launchMeta.LaunchTypeData.Artifacts)
 
+	log.Println("Downloading log4j...")
+	err = lunarlauncher.DownloadLog4j()
+	if err != nil {
+		log.Fatalf("Could not download log4j: %s\n", err)
+		return
+	}
+
+	log.Println("Launching game...")
 	launchSandboxed(mcVersion)
 }

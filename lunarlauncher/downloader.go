@@ -25,7 +25,25 @@ func isAlreadyDownloaded(downloadPath string) (bool, error) {
 	return false, nil
 }
 
-func downloadFile(filePathRelative string, fileUrl string) error {
+// Download file to working directory.
+func downloadFileToWD(filePathRelative string, fileUrl string) error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("get wd: %w", err)
+	}
+
+	filePath := path.Join(wd, filePathRelative)
+	isSubDir, err := IsSubDir(wd, filePath)
+	if err != nil {
+		return fmt.Errorf("sub dir validate: %w", err)
+	}
+	if !isSubDir {
+		return fmt.Errorf("directory path traversal '%s'", filePath)
+	}
+	return downloadFile(filePath, fileUrl)
+}
+
+func downloadFile(filePath string, fileUrl string) error {
 	fileUrlParsed, err := url.Parse(fileUrl)
 	if err != nil {
 		return fmt.Errorf("parse file url: %w", err)
@@ -39,21 +57,7 @@ func downloadFile(filePathRelative string, fileUrl string) error {
 		return fmt.Errorf("invalid url scheme (%s)", fileUrlParsed.Scheme)
 	}
 
-	wd, err := os.Getwd()
-	if err != nil {
-		return fmt.Errorf("get wd: %w", err)
-	}
-
-	downloadPath := path.Join(wd, filePathRelative)
-	isSubDir, err := IsSubDir(wd, downloadPath)
-	if err != nil {
-		return fmt.Errorf("sub dir validate: %w", err)
-	}
-	if !isSubDir {
-		return fmt.Errorf("directory path traversal '%s'", downloadPath)
-	}
-	
-	alreadyDownloaded, err := isAlreadyDownloaded(downloadPath)
+	alreadyDownloaded, err := isAlreadyDownloaded(filePath)
 	if err != nil {
 		return fmt.Errorf("is already downloaded: %w", err)
 	}
@@ -71,11 +75,11 @@ func downloadFile(filePathRelative string, fileUrl string) error {
 		return fmt.Errorf("invalid response status code (%d)", response.StatusCode)
 	}
 
-	err = os.MkdirAll(filepath.Dir(downloadPath), os.ModePerm)
+	err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm)
 	if err != nil {
-		return fmt.Errorf("mkdir (%s)", downloadPath)
+		return fmt.Errorf("mkdir (%s)", filePath)
 	}
-	file, err := os.Create(downloadPath)
+	file, err := os.Create(filePath)
 	if err != nil {
 		return fmt.Errorf("create file: %w", err)
 	}

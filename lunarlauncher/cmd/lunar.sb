@@ -14,12 +14,13 @@
 )
 
 (allow file-read* file-write*
-    (regex ".+/lunarlauncher/cmd/build/.+")
+    (regex ".+/lunarlauncher/cmd/offline/.+")
     (regex "^/private/var/folders/[a-zA-Z][0-9]/[a-zA-Z0-9]+/T/[a-zA-Z+~]+[0-9]+\.tmp$")
     (regex "^/Users/[a-zA-Z0-9]+/.lunarclient/.*")
 )
 
 (allow file-read*
+    (path "/private/var/run/resolv.conf")
     (regex ".+/lunarlauncher/cmd/")
     (regex "^/Users/[a-zA-Z0-9]+/Library/Preferences/com.apple.security.plist")
     (regex "^/Users/[a-zA-Z0-9]+/Library/Application Support/minecraft/.*")
